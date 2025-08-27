@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "162780545875",
+    "firebase_url": "https://bantaybaha-1c209-default-rtdb.firebaseio.com",
+    "project_id": "bantaybaha-1c209",
+    "storage_bucket": "bantaybaha-1c209.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:162780545875:android:20c97896757c387380d7a6",
+        "android_client_info": {
+          "package_name": "com.example.bantaybaha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcJW4tDwL9EOL-jBrpmnc6p4UhBB09BGo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
