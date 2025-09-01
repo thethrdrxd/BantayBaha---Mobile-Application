@@ -13,7 +13,7 @@ class BantayBahaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: true,
+      debugShowCheckedModeBanner: false,
       title: 'BantayBaha',
       home: const LoginPage(),
       routes: {
