@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  int _getHighRiskSensorCount() {
+  int _getFloodReportCount() {
     return sensors.where((sensor) => 
       sensor['waterLevel'] > 50 || 
       sensor['status'].toString().toLowerCase() == 'critical' ||
@@ -79,8 +79,8 @@ class _HomePageState extends State<HomePage> {
     ).length;
   }
 
-  void _showRecentFloodAlerts() {
-    final highRiskSensors = sensors.where((sensor) => 
+  void _showFloodReports() {
+    final floodReports = sensors.where((sensor) => 
       sensor['waterLevel'] > 50 || 
       sensor['status'].toString().toLowerCase() == 'critical' ||
       sensor['status'].toString().toLowerCase() == 'high' ||
@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage> {
             Icon(Icons.warning, color: Colors.red[600]),
             const SizedBox(width: 8),
             Text(
-              'Recent Flood Alerts',
+              'Flood Reports',
               style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
             ),
           ],
@@ -105,18 +105,26 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (highRiskSensors.isEmpty)
+              if (floodReports.isEmpty)
                 Text(
-                  'No active flood alerts at the moment.',
+                  'No flood reports at the moment.',
                   style: GoogleFonts.nunito(fontSize: 16),
                 )
               else
-                ...highRiskSensors.map((sensor) => Card(
+                ...floodReports.map((sensor) => Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
-                    leading: Icon(
-                      Icons.warning,
-                      color: Colors.red[600],
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.warning,
+                        color: Colors.red[600],
+                        size: 20,
+                      ),
                     ),
                     title: Text(
                       sensor['name'],
@@ -127,6 +135,8 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Text('Water Level: ${sensor['waterLevel']}%'),
                         Text('Status: ${sensor['status']}'),
+                        Text('Rain Precipitation: ${_getRainPrecipitation(sensor)}mm'),
+                        Text('Water Pressure: ${_getWaterPressure(sensor)}kPa'),
                         if (sensor['nearestEvacCenter'] != null)
                           Text('Nearest Evacuation: ${sensor['nearestEvacCenter']['name']}'),
                       ],
@@ -144,6 +154,269 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+    void _show7DayForecast() {
+    // Generate 7-day forecast data (simulated)
+    final forecastData = List.generate(7, (index) {
+      final date = DateTime.now().add(Duration(days: index));
+      final baseTemp = 28.0;
+      final tempVariation = (index % 3 - 1) * 2.0; // Vary temperature
+      final conditions = ['Clear', 'Clouds', 'Rain', 'Partly Cloudy', 'Clear', 'Rain', 'Clouds'];
+      final icons = [Icons.wb_sunny, Icons.cloud, Icons.umbrella, Icons.cloud, Icons.wb_sunny, Icons.umbrella, Icons.cloud];
+      
+      return {
+        'date': date,
+        'day': _getDayName(date.weekday),
+        'shortDay': _getShortDayName(date.weekday),
+        'temperature': (baseTemp + tempVariation).round(),
+        'condition': conditions[index % conditions.length],
+        'icon': icons[index % icons.length],
+        'humidity': 60 + (index * 5) % 30,
+        'rainfall': index % 3 == 0 ? (5 + index * 2) : 0,
+      };
+    });
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFEAF4FB),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        title: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFEAF4FB), Color(0xFFFFFFFF)],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blueGrey.withOpacity(0.15),
+                blurRadius: 12,
+                offset: const Offset(4, 4),
+              ),
+              BoxShadow(
+                color: Colors.white.withOpacity(0.8),
+                blurRadius: 6,
+                offset: const Offset(-3, -3),
+                spreadRadius: -2,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue[100],
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  Icons.calendar_today,
+                  color: Colors.blue[600],
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '7-Day Weather Forecast',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.blue[900],
+                      ),
+                    ),
+                    Text(
+                      'Bogo City, Cebu, Philippines',
+                      style: GoogleFonts.nunito(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+                content: Container(
+          width: double.maxFinite,
+          height: 200,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: forecastData.map((day) => Container(
+                width: 120,
+                margin: const EdgeInsets.only(right: 12),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFEAF4FB), Color(0xFFFFFFFF)],
+                    ),
+                    border: Border.all(
+                      color: Colors.blue[200]!.withOpacity(0.3),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blueGrey.withOpacity(0.15),
+                        blurRadius: 12,
+                        offset: const Offset(4, 4),
+                      ),
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.8),
+                        blurRadius: 6,
+                        offset: const Offset(-3, -3),
+                        spreadRadius: -2,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Day name
+                      Text(
+                        day['shortDay'] as String,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Colors.blue[800],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      // Weather icon
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          day['icon'] as IconData,
+                          color: Colors.blue[600],
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Temperature
+                      Text(
+                        '${day['temperature']}°',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.blue[700],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 6),
+                      // Condition
+                      Text(
+                        day['condition'] as String,
+                        style: GoogleFonts.nunito(
+                          fontSize: 11,
+                          color: Colors.grey[600],
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      // Humidity
+                      Text(
+                        '${day['humidity']}%',
+                        style: GoogleFonts.nunito(
+                          fontSize: 10,
+                          color: Colors.grey[500],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      if ((day['rainfall'] as int) > 0) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          '${day['rainfall']}mm',
+                          style: GoogleFonts.nunito(
+                            fontSize: 10,
+                            color: Colors.blue[600],
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              )).toList(),
+            ),
+          ),
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.all(16),
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue[600],
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 4,
+              ),
+              child: Text(
+                'Close',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getShortDayName(int weekday) {
+    switch (weekday) {
+      case 1: return 'Mon';
+      case 2: return 'Tue';
+      case 3: return 'Wed';
+      case 4: return 'Thu';
+      case 5: return 'Fri';
+      case 6: return 'Sat';
+      case 7: return 'Sun';
+      default: return 'Unknown';
+    }
+  }
+
+  String _getDayName(int weekday) {
+    switch (weekday) {
+      case 1: return 'Monday';
+      case 2: return 'Tuesday';
+      case 3: return 'Wednesday';
+      case 4: return 'Thursday';
+      case 5: return 'Friday';
+      case 6: return 'Saturday';
+      case 7: return 'Sunday';
+      default: return 'Unknown';
+    }
   }
 
   Future<void> fetchWeather() async {
@@ -217,29 +490,143 @@ class _HomePageState extends State<HomePage> {
       child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-                // Header with notification bell
+                // Header with logo and notification bell
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-                      'BantayBaha',
-            style: GoogleFonts.poppins(
-                        fontSize: 24,
-              fontWeight: FontWeight.bold,
-                        color: Colors.blue[900],
-                      ),
+          Row(
+            children: [
+              // Logo with border
+              GestureDetector(
+                onTap: () {
+                  // Refresh the app
+    setState(() {
+                    // Trigger a refresh by rebuilding the state
+                  });
+                  fetchWeather();
+                  _checkLocationPermission();
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+                    color: const Color(0xFFEAF4FB),
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFEAF4FB), Color(0xFFFFFFFF)],
                     ),
+                    border: Border.all(
+                      color: Colors.blue[200]!.withOpacity(0.3),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      // Outer shadow (dark)
+                      BoxShadow(
+                        color: Colors.blueGrey.withOpacity(0.15),
+                        blurRadius: 12,
+                        offset: const Offset(4, 4),
+                      ),
+                      // Inner shadow (light)
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.8),
+                        blurRadius: 6,
+                        offset: const Offset(-3, -3),
+                        spreadRadius: -2,
+          ),
+        ],
+      ),
+                  child: Image.asset(
+                    'assets/logo.png',
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+                            Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+                  color: const Color(0xFFEAF4FB),
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFFEAF4FB), Color(0xFFFFFFFF)],
+                  ),
+                  border: Border.all(
+                    color: Colors.blue[200]!.withOpacity(0.3),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    // Outer shadow (dark)
+                    BoxShadow(
+                      color: Colors.blueGrey.withOpacity(0.15),
+                      blurRadius: 12,
+                      offset: const Offset(4, 4),
+                    ),
+                    // Inner shadow (light)
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.8),
+                      blurRadius: 6,
+                      offset: const Offset(-3, -3),
+                      spreadRadius: -2,
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'BantayBaha',
+                  style: GoogleFonts.montserratAlternates(
+                    fontSize: 24,
+              fontWeight: FontWeight.bold,
+                    color: Colors.blue[900],
+                  ),
+                ),
+              ),
+            ],
+          ),
                     Stack(
             children: [
-                        IconButton(
-                          onPressed: _showRecentFloodAlerts,
-                          icon: Icon(
-                            Icons.notifications,
-                            size: 28,
-                            color: Colors.blue[700],
+                Container(
+                  decoration: BoxDecoration(
+                            color: const Color(0xFFEAF4FB),
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFFEAF4FB), Color(0xFFFFFFFF)],
+                            ),
+                            border: Border.all(
+                              color: Colors.blue[200]!.withOpacity(0.3),
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              // Outer shadow (dark)
+                              BoxShadow(
+                                color: Colors.blueGrey.withOpacity(0.15),
+                                blurRadius: 12,
+                                offset: const Offset(4, 4),
+                              ),
+                              // Inner shadow (light)
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.8),
+                                blurRadius: 6,
+                                offset: const Offset(-3, -3),
+                                spreadRadius: -2,
+                      ),
+                    ],
+                  ),
+                          child: IconButton(
+                            onPressed: _showFloodReports,
+                            icon: Icon(
+                              Icons.notifications,
+                              size: 28,
+                              color: Colors.blue[700],
+                            ),
                           ),
                         ),
-                        if (_getHighRiskSensorCount() > 0)
+                        if (_getFloodReportCount() > 0)
                           Positioned(
                             right: 8,
                             top: 8,
@@ -254,7 +641,7 @@ class _HomePageState extends State<HomePage> {
                                 minHeight: 16,
                               ),
                         child: Text(
-                                '${_getHighRiskSensorCount()}',
+                                '${_getFloodReportCount()}',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
@@ -263,9 +650,9 @@ class _HomePageState extends State<HomePage> {
                                 textAlign: TextAlign.center,
                               ),
                             ),
-                          ),
-                      ],
-              ),
+            ),
+          ],
+        ),
             ],
           ),
                 const SizedBox(height: 20),
@@ -277,7 +664,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                 
                 // Weather Forecast Section
-                Container(
+                GestureDetector(
+                  onTap: _show7DayForecast,
+                  child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                   decoration: BoxDecoration(
@@ -362,6 +751,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
+                ),
                 const SizedBox(height: 28),
                 
                 // Nearest Sensor Section (when location is enabled)
@@ -370,7 +760,7 @@ class _HomePageState extends State<HomePage> {
                 
                 const SizedBox(height: 28),
                 Text(
-                  'Recent Flood Alerts',
+                  'Active Sensors',
                   style: GoogleFonts.poppins(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
