@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**BantayBaha** is a comprehensive flood monitoring and disaster management mobile application designed specifically for the City of Bogo, Cebu, Philippines. The application serves as a critical tool for residents to monitor real-time flood conditions, access emergency services, and navigate to safe evacuation centers during flood emergencies.
+BantayBaha is a comprehensive flood monitoring system that integrates mobile and desktop applications with IoT-based sensors. The mobile application enables users to register using their mobile number, verify their accounts through a one-time password (OTP), and specify their current location for location-based alerts. It provides real-time access to critical environmental data, including water level, water pressure, and rainfall, through an intuitive user interface. The IoT sensors continuously capture and transmit data to ensure accurate monitoring, while the desktop application supports administrative oversight and system management.
 
 ### Project Information
 - **Project Name**: BantayBaha Mobile Application
@@ -297,30 +297,14 @@ dependencies:
 4. **Navigation**: Route calculation and map rendering
 5. **Emergency Features**: Hotline access and evacuation guidance
 
-## Future Enhancements
-
-### Planned Features
-1. **Push Notifications**: Real-time flood alerts and emergency notifications
-2. **Offline Mode**: Basic functionality without internet connection
-3. **Multi-Language Support**: Cebuano and English language options
-4. **Community Reports**: User-generated flood reports and photos
-5. **Historical Data**: Flood history and trend analysis
-6. **Social Integration**: Community alerts and information sharing
-
-### Technical Improvements
-1. **Performance Optimization**: Reduced battery consumption and faster loading
-2. **Enhanced Security**: Biometric authentication and encrypted data storage
-3. **Advanced Analytics**: Flood prediction algorithms and risk assessment
-4. **IoT Integration**: Direct sensor communication and control
-5. **Machine Learning**: Predictive flood modeling and early warning systems
 
 ## Contributors
 
 ### Development Team
-- **Project Lead**: [Your Name]
-- **Backend Development**: Firebase integration and API management
-- **Frontend Development**: Flutter UI/UX implementation
-- **Testing & QA**: Application testing and quality assurance
+- **Project Lead**: Roxanne T. Mercader
+- **Backend Development**: Carl Joshua H. Lepaopao
+- **Frontend Development**: Radcliff R. Unabia III
+- **System Analyst**: Chamika Yvonne H. Ugsang
 
 ### Acknowledgments
 - **City Government of Bogo**: Project support and data provision
@@ -329,13 +313,3 @@ dependencies:
 - **Firebase**: Backend infrastructure and real-time database services
 
 ---
-
-## Academic Context
-
-This project represents a comprehensive study in mobile application development for disaster management, focusing on the integration of real-time data, location services, and emergency response systems. The application demonstrates practical implementation of modern mobile development frameworks, cloud services, and user-centered design principles in addressing real-world challenges faced by communities in flood-prone areas.
-
-The BantayBaha application serves as both a functional tool for the residents of Bogo City and a case study in developing technology solutions for disaster preparedness and response in developing regions.
-
----
-
-**Note**: This application is developed for academic and research purposes as part of a study project on mobile application development for disaster management systems.
